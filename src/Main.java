@@ -1,6 +1,9 @@
 import model.Medicine;
 import model.PrescriptionType;
 import model.Sale;
+import observer.ExpirationAlertObserver;
+import report.ConsoleReportFactory;
+import report.ReportFactory;
 import repository.DataInitializer;
 import repository.MedicineRepository;
 import repository.Repository;
@@ -19,10 +22,10 @@ public class Main {
 
         DataInitializer.initMedicineRepository(medicineRepo);
 
-        PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo);
+        ReportFactory reportFactory = new ConsoleReportFactory();
+        PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo, reportFactory);
+        service.addObserver(new ExpirationAlertObserver());
         ConsoleUI ui = new ConsoleUI(service);
         ui.start();
     }
 }
-// в репозитории init где тестовые данные - туда вынести - done
-// интерфейс фармаси => его в консоль (у каждого сервиса свой интерфейс) (без этого зависит от конкретики, а не абстракции) - done

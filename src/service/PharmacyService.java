@@ -3,25 +3,48 @@ package service;
 import exception.*;
 import model.Medicine;
 import model.Sale;
+import observer.Observer;
+import report.Report;
+import report.ReportFactory;
 import repository.MedicineRepository;
 import repository.Repository;
 import repository.SaleRepository;
+import service.strategy.PricingStrategy;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PharmacyService implements PharmacyServiceInterface {
     private Repository<Medicine, String> medicineRepo;
     private Repository<Sale, String> saleRepo;
+    private List<Observer> observers = new ArrayList<>();
+    private ReportFactory reportFactory;
 
     public PharmacyService(Repository<Medicine, String> medicineRepo,
-                           Repository<Sale, String> saleRepo) {
+                           Repository<Sale, String> saleRepo,
+                           ReportFactory reportFactory) {
         this.medicineRepo = medicineRepo;
         this.saleRepo = saleRepo;
+        this.reportFactory = reportFactory;
+    }
+
+    //todo
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+    //todo
+    private void notifyObservers(Medicine medicine) {
+        for (Observer observer : observers) {
+            observer.update(medicine);
+        }
     }
 
     public void addMedicine(Medicine medicine) {
-        if (medicine.isExpired()) throw new ExpiredMedicineException("Препарат просрочен");
+        if (medicine.isExpired()) {
+            notifyObservers(medicine);
+            throw new ExpiredMedicineException("Препарат просрочен");
+        }
         medicineRepo.add(medicine);
     }
 
@@ -30,17 +53,40 @@ public class PharmacyService implements PharmacyServiceInterface {
         medicineRepo.deleteById(id);
     }
 
-    public void sellMedicine(String id, int quantity, boolean hasPrescription) {
+    public void sellMedicine(String id, int quantity, boolean hasPrescription, PricingStrategy strategy) {
         Medicine med = medicineRepo.findById(id);
         if (med == null) throw new MedicineNotFoundException("Лекарство не найдено");
-        if (med.isExpired()) throw new ExpiredMedicineException("Препарат просрочен");
+        if (med.isExpired()) {
+            notifyObservers(med);
+            throw new ExpiredMedicineException("Препарат просрочен");
+        }
         if (med.isPrescriptionRequired() && !hasPrescription)
             throw new PrescriptionRequiredException("Нужен рецепт");
 
         med.reduceQuantity(quantity);
-        saleRepo.add(new Sale(med, quantity));
+        double[] prices = strategy.calculatePrice(med, quantity);
+        double unitPrice = prices[0];
+        double totalPrice = prices[1];
+
+        // Создаём продажу через фабрику
+        Sale sale = new Sale(med, quantity, unitPrice, totalPrice);
+        saleRepo.add(sale);
     }
 
     public List<Medicine> getAllMedicines() { return medicineRepo.findAll(); }
     public List<Sale> getSales() { return saleRepo.findAll(); }
+
+    @Override
+    public void printSalesReport() {
+        List<Sale> sales = saleRepo.findAll();
+        Report report = reportFactory.createSalesReport(sales);
+        System.out.println(report.generate());
+    }
+
+    @Override
+    public void printExpiredReport() {
+        List<Medicine> medicines = medicineRepo.findAll();
+        Report report = reportFactory.createExpiredReport(medicines);
+        System.out.println(report.generate());
+    }
 }

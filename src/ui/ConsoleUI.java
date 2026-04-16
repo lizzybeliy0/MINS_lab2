@@ -6,6 +6,7 @@ import model.PrescriptionType;
 import model.Sale;
 import service.PharmacyService;
 import service.PharmacyServiceInterface;
+import service.strategy.*;
 
 import java.time.LocalDate; //дата без времени 2026-03-01
 import java.time.format.DateTimeFormatter;
@@ -28,6 +29,8 @@ public class ConsoleUI {
             System.out.println("3. Удалить лекарство");
             System.out.println("4. Продать лекарство");
             System.out.println("5. Просмотреть журнал продаж");
+            System.out.println("6. Отчёт по продажам ");
+            System.out.println("7. Отчёт по просрочке");
             System.out.println("0. Выход");
 
             System.out.print("Введите число: ");
@@ -40,6 +43,8 @@ public class ConsoleUI {
                     case 3 -> deleteMedicine();
                     case 4 -> sellMedicine();
                     case 5 -> viewSales();
+                    case 6 -> service.printSalesReport();
+                    case 7 -> service.printExpiredReport();
                     case 0 -> { System.out.println("До свидания)"); return; }
                     default -> System.out.println("Неверный пункт меню(");
                 }
@@ -68,9 +73,10 @@ public class ConsoleUI {
 
         PrescriptionType prescriptionType = readPrescriptionType("Требуется рецепт? (да/нет): ");
         int quantity = readInt("Количество: ");
+        double price = readDouble("Цена (в рублях): ");
         LocalDate expirationDate = readDate("Годен до (дд.мм.гггг): ");
 
-        service.addMedicine(new Medicine(name, prescriptionType, expirationDate, quantity));
+        service.addMedicine(new Medicine(name, prescriptionType, expirationDate, quantity, price));
         System.out.println("Операция выполнена успешно!");
     }
 
@@ -88,8 +94,29 @@ public class ConsoleUI {
         String id = scanner.nextLine();
         int quantity = readInt("Введите количество: ");
         boolean hasPrescription = readYesNo("Есть рецепт? (да/нет): ");
-        service.sellMedicine(id, quantity, hasPrescription);
+        PricingStrategy strategy = chooseStrategy();
+        service.sellMedicine(id, quantity, hasPrescription, strategy);
         System.out.println("Операция выполнена успешно!");
+    }
+
+    private PricingStrategy chooseStrategy() {
+        while (true) {
+            System.out.println("Выбор скидки: 1 - Пенсионная (25%), 2 - Для многодетных семей (10%), 3 - Без скидки ");
+            int choice = readInt("Ваш выбор: ");
+            switch (choice) {
+                case 1:
+                    System.out.println("Применена пенсионная скидка 25%");
+                    return new PensionerDiscountStrategy();
+                case 2:
+                    System.out.println("Применена скидка для многодетных 10%");
+                    return new LargeFamilyDiscountStrategy();
+                case 3:
+                    System.out.println("Скидка не применена");
+                    return new NoDiscountStrategy();
+                default:
+                    System.out.println("Неверный выбор, введите 1,2 или 3");
+            }
+        }
     }
 
     private void viewSales() {
@@ -98,6 +125,8 @@ public class ConsoleUI {
         if (sales.isEmpty()) System.out.println("Список пуст");
         else sales.forEach(System.out::println);
     }
+
+
 
     private boolean readYesNo(String prompt) {
         while (true) {
@@ -116,6 +145,22 @@ public class ConsoleUI {
                 return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.println("Введите число!");
+            }
+        }
+    }
+
+    private double readDouble(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            try {
+                double value = Double.parseDouble(scanner.nextLine());
+                if (value <= 0) {
+                    System.out.println("Цена должна быть положительной!");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Введите число (например: 150.50)!");
             }
         }
     }

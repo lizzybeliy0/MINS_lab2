@@ -13,18 +13,23 @@ public class Medicine {
     private PrescriptionType prescriptionType;
     private LocalDate expirationDate;
     private int quantity;
+    private double price;
 
-    public Medicine(String name, PrescriptionType prescriptionType, LocalDate expirationDate, int quantity) {
+    public Medicine(String name, PrescriptionType prescriptionType,
+                    LocalDate expirationDate, int quantity, double price) {
         if (quantity <= 0) throw new InvalidInputException("Количество должно быть положительным");
+        if (price <= 0) throw new InvalidInputException("Цена должна быть положительной");
         this.id = String.valueOf(counter++);
         this.name = name;
         this.prescriptionType = prescriptionType;
         this.expirationDate = expirationDate;
         this.quantity = quantity;
+        this.price = price;
     }
 
     public String getId() { return id; }
     public String getName() { return name; }
+    public double getPrice() { return price; }
     public boolean isPrescriptionRequired() {
         return prescriptionType.isPrescriptionRequired();
     }
@@ -41,10 +46,9 @@ public class Medicine {
     public String toString() {
         String expired = isExpired() ? " (просрочено)" : "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        return "ID: " + id +
-                " | " + name +
-                " | Кол-во: " + quantity +
-                " | Годен до: " + expirationDate.format(formatter) + expired +
-                " | " + prescriptionType.getDisplayName();
+        return String.format("ID: %s | %s | Цена: %.2f | Кол-во: %d | Годен до: %s%s | %s",
+                id, name, price, quantity,
+                expirationDate.format(formatter), expired,
+                prescriptionType.getDisplayName());
     }
 }

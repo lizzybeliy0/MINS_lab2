@@ -14,5 +14,9 @@ public class DataInitializer {
                 LocalDate.now().plusDays(20), 20, 350.0));
         repo.add(new Medicine("Витаминки", PrescriptionType.WITHOUTPRESCRIPTION,
                 LocalDate.now().minusDays(5), 10, 500.0));
+        repo.add(new Medicine("Лекарство", PrescriptionType.WITHOUTPRESCRIPTION,
+                LocalDate.now().minusDays(10), 10, 500.0));
+        repo.add(new Medicine("Лечилка", PrescriptionType.WITHOUTPRESCRIPTION,
+                LocalDate.now().minusDays(15), 10, 500.0));
     }
 }

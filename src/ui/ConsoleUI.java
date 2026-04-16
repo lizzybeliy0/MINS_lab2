@@ -77,7 +77,6 @@ public class ConsoleUI {
         LocalDate expirationDate = readDate("Годен до (дд.мм.гггг): ");
 
         service.addMedicine(new Medicine(name, prescriptionType, expirationDate, quantity, price));
-        System.out.println("Операция выполнена успешно!");
     }
 
     private void deleteMedicine() {
@@ -85,7 +84,6 @@ public class ConsoleUI {
         System.out.print("Введите ID лекарства для удаления: ");
         String id = scanner.nextLine();
         service.deleteMedicine(id);
-        System.out.println("Операция выполнена успешно!");
     }
 
     private void sellMedicine() {
@@ -96,7 +94,6 @@ public class ConsoleUI {
         boolean hasPrescription = readYesNo("Есть рецепт? (да/нет): ");
         PricingStrategy strategy = chooseStrategy();
         service.sellMedicine(id, quantity, hasPrescription, strategy);
-        System.out.println("Операция выполнена успешно!");
     }
 
     private PricingStrategy chooseStrategy() {
@@ -105,13 +102,10 @@ public class ConsoleUI {
             int choice = readInt("Ваш выбор: ");
             switch (choice) {
                 case 1:
-                    System.out.println("Применена пенсионная скидка 25%");
                     return new PensionerDiscountStrategy();
                 case 2:
-                    System.out.println("Применена скидка для многодетных 10%");
                     return new LargeFamilyDiscountStrategy();
                 case 3:
-                    System.out.println("Скидка не применена");
                     return new NoDiscountStrategy();
                 default:
                     System.out.println("Неверный выбор, введите 1,2 или 3");
@@ -125,8 +119,6 @@ public class ConsoleUI {
         if (sales.isEmpty()) System.out.println("Список пуст");
         else sales.forEach(System.out::println);
     }
-
-
 
     private boolean readYesNo(String prompt) {
         while (true) {

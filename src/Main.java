@@ -1,7 +1,6 @@
 import model.Medicine;
-import model.PrescriptionType;
 import model.Sale;
-import observer.ExpirationAlertObserver;
+import observer.*;
 import report.ConsoleReportFactory;
 import report.ReportFactory;
 import repository.DataInitializer;
@@ -11,8 +10,6 @@ import repository.SaleRepository;
 import service.PharmacyService;
 import service.PharmacyServiceInterface;
 import ui.ConsoleUI;
-
-import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -24,7 +21,10 @@ public class Main {
 
         ReportFactory reportFactory = new ConsoleReportFactory();
         PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo, reportFactory);
-        service.addObserver(new ExpirationAlertObserver());
+        service.addObserver(new AddedObserver());
+        service.addObserver(new RemovedObserver());
+        service.addObserver(new ExpiredObserver());
+        service.addObserver(new SoldObserver());
         ConsoleUI ui = new ConsoleUI(service);
         ui.start();
     }

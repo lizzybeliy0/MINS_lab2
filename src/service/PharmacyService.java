@@ -20,14 +20,11 @@ public class PharmacyService implements PharmacyServiceInterface {
     private Repository<Medicine, String> medicineRepo;
     private Repository<Sale, String> saleRepo;
     private List<Observer> observers = new ArrayList<>();
-    private ReportFactory reportFactory;
 
     public PharmacyService(Repository<Medicine, String> medicineRepo,
-                           Repository<Sale, String> saleRepo,
-                           ReportFactory reportFactory) {
+                           Repository<Sale, String> saleRepo) {
         this.medicineRepo = medicineRepo;
         this.saleRepo = saleRepo;
-        this.reportFactory = reportFactory;
     }
 
 
@@ -79,18 +76,4 @@ public class PharmacyService implements PharmacyServiceInterface {
 
     public List<Medicine> getAllMedicines() { return medicineRepo.findAll(); }
     public List<Sale> getSales() { return saleRepo.findAll(); }
-
-    @Override
-    public void printSalesReport() {
-        List<Sale> sales = saleRepo.findAll();
-        Report report = reportFactory.createSalesReport(sales);
-        System.out.println(report.generate());
-    }
-
-    @Override
-    public void printExpiredReport() {
-        List<Medicine> medicines = medicineRepo.findAll();
-        Report report = reportFactory.createExpiredReport(medicines);
-        System.out.println(report.generate());
-    }
 }

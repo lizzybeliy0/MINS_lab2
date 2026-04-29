@@ -14,6 +14,5 @@ public interface PharmacyServiceInterface {
     List<Medicine> getAllMedicines();
     List<Sale> getSales();
     void addObserver(Observer observer);
-    void printSalesReport();
-    void printExpiredReport();
+
 }

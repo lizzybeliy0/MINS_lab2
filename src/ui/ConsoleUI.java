@@ -6,6 +6,7 @@ import model.PrescriptionType;
 import model.Sale;
 import service.PharmacyService;
 import service.PharmacyServiceInterface;
+import service.ReportServiceInterface;
 import service.strategy.*;
 
 import java.time.LocalDate; //дата без времени 2026-03-01
@@ -17,9 +18,17 @@ import java.util.Scanner;
 public class ConsoleUI {
 
     private PharmacyServiceInterface service;
+    private ReportServiceInterface<Sale> salesReportService;
+    private ReportServiceInterface<Medicine> expiredReportService;
     private Scanner scanner = new Scanner(System.in);
 
-    public ConsoleUI(PharmacyServiceInterface service) { this.service = service; }
+    public ConsoleUI(PharmacyServiceInterface service,
+                     ReportServiceInterface<Sale> salesReportService,
+                     ReportServiceInterface<Medicine> expiredReportService) {
+        this.service = service;
+        this.salesReportService = salesReportService;
+        this.expiredReportService = expiredReportService;
+    }
 
     public void start() {
         while (true) {
@@ -43,8 +52,8 @@ public class ConsoleUI {
                     case 3 -> deleteMedicine();
                     case 4 -> sellMedicine();
                     case 5 -> viewSales();
-                    case 6 -> service.printSalesReport();
-                    case 7 -> service.printExpiredReport();
+                    case 6 -> printSalesReport();
+                    case 7 -> printExpiredReport();
                     case 0 -> { System.out.println("До свидания)"); return; }
                     default -> System.out.println("Неверный пункт меню(");
                 }
@@ -118,6 +127,16 @@ public class ConsoleUI {
         List<Sale> sales = service.getSales();
         if (sales.isEmpty()) System.out.println("Список пуст");
         else sales.forEach(System.out::println);
+    }
+
+    private void printSalesReport() {
+        List<Sale> sales = service.getSales();
+        salesReportService.printReport(sales);
+    }
+
+    private void printExpiredReport() {
+        List<Medicine> medicines = service.getAllMedicines();
+        expiredReportService.printReport(medicines);
     }
 
     private boolean readYesNo(String prompt) {

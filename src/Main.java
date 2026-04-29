@@ -7,8 +7,7 @@ import repository.DataInitializer;
 import repository.MedicineRepository;
 import repository.Repository;
 import repository.SaleRepository;
-import service.PharmacyService;
-import service.PharmacyServiceInterface;
+import service.*;
 import ui.ConsoleUI;
 
 public class Main {
@@ -20,12 +19,14 @@ public class Main {
         DataInitializer.initMedicineRepository(medicineRepo);
 
         ReportFactory reportFactory = new ConsoleReportFactory();
-        PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo, reportFactory);
+        PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo);
+        ReportServiceInterface<Sale> salesReportService = new SalesReportService(reportFactory);
+        ReportServiceInterface<Medicine> expiredReportService = new ExpiredReportService(reportFactory);
         service.addObserver(new AddedObserver());
         service.addObserver(new RemovedObserver());
         service.addObserver(new ExpiredObserver());
         service.addObserver(new SoldObserver());
-        ConsoleUI ui = new ConsoleUI(service);
+        ConsoleUI ui = new ConsoleUI(service, salesReportService, expiredReportService);
         ui.start();
     }
 }

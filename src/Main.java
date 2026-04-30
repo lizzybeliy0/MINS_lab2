@@ -22,11 +22,12 @@ public class Main {
         PharmacyServiceInterface service = new PharmacyService(medicineRepo, saleRepo);
         ReportServiceInterface<Sale> salesReportService = new SalesReportService(reportFactory);
         ReportServiceInterface<Medicine> expiredReportService = new ExpiredReportService(reportFactory);
+        BonusInterface bonusGod = new Bonus();
         service.addObserver(new AddedObserver());
         service.addObserver(new RemovedObserver());
         service.addObserver(new ExpiredObserver());
         service.addObserver(new SoldObserver());
-        ConsoleUI ui = new ConsoleUI(service, salesReportService, expiredReportService);
+        ConsoleUI ui = new ConsoleUI(service, salesReportService, expiredReportService, bonusGod);
         ui.start();
     }
 }

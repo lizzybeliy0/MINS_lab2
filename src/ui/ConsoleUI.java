@@ -55,7 +55,6 @@ public class ConsoleUI {
                     case 1 -> viewMedicines();
                     case 2 -> addMedicine();
                     case 3 -> deleteMedicine();
-                    //case 4 -> sellMedicine();
                     case 4 -> sellMedicineWithBonuses();
                     case 5 -> viewSales();
                     case 6 -> printSalesReport();
@@ -101,16 +100,6 @@ public class ConsoleUI {
         String id = scanner.nextLine();
         service.deleteMedicine(id);
     }
-
-    /*private void sellMedicine() {
-        viewMedicines();
-        System.out.print("Введите ID лекарства: ");
-        String id = scanner.nextLine();
-        int quantity = readInt("Введите количество: ");
-        boolean hasPrescription = readYesNo("Есть рецепт? (да/нет): ");
-        PricingStrategy strategy = chooseStrategy();
-        service.sellMedicine(id, quantity, hasPrescription, strategy);
-    }*/
 
     private void sellMedicineWithBonuses() {
         viewMedicines();
